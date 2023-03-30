@@ -9,6 +9,8 @@ exports.UserSchemaValidation = {
     Register: joi_1.default.object({
         name: joi_1.default.string().required(),
         email: joi_1.default.string().email().required(),
+        userName: joi_1.default.string().required(),
+        phoneNumber: joi_1.default.string().required(),
         password: joi_1.default.string().min(8).required(),
         confirmPassword: joi_1.default.string().valid(joi_1.default.ref("password")).required(),
     }),

@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsersLogin = exports.UsersRegistration = exports.GetSingleUser = exports.getUser = void 0;
+exports.DeleteAUser = exports.updateOneUser = exports.UsersLogin = exports.UsersRegistration = exports.GetSingleUser = exports.GetUser = void 0;
 const UserModels_1 = __importDefault(require("../Models/UserModels"));
 const AppError_1 = require("../Utils/AppError");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const AsyncHandler_1 = __importDefault(require("../Utils/AsyncHandler"));
 // Get all users:
-const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const GetUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield UserModels_1.default.find();
         return res.status(200).json({
@@ -33,7 +33,7 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
-exports.getUser = getUser;
+exports.GetUser = GetUser;
 // Get a single User:
 exports.GetSingleUser = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const singleuser = yield UserModels_1.default.findById(req.params.userID).populate({
@@ -99,4 +99,33 @@ exports.UsersLogin = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(v
             data: CheckEmail,
         });
     }
+}));
+// Update one user:
+exports.updateOneUser = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userName } = req.body;
+    const user = yield UserModels_1.default.findByIdAndUpdate(req.params.userID, { userName }, { new: true });
+    if (!user) {
+        next(new AppError_1.AppError({
+            message: "An error occured in updating username",
+            httpcode: AppError_1.HTTPCODES.INTERNAL_SERVER_ERROR,
+        }));
+    }
+    return res.status(201).json({
+        message: "Successfully updated the user's username",
+        data: user,
+    });
+}));
+// Delete a user:
+exports.DeleteAUser = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield UserModels_1.default.findByIdAndDelete(req.params.userID);
+    if (!user) {
+        next(new AppError_1.AppError({
+            message: "An error occured in deleting this user",
+            httpcode: AppError_1.HTTPCODES.INTERNAL_SERVER_ERROR,
+        }));
+    }
+    return res.status(201).json({
+        message: "Successfully deleted this user",
+        data: user,
+    });
 }));

@@ -24,7 +24,16 @@ const express_1 = __importDefault(require("express"));
 const UserController_1 = require("../Controllers/UserController");
 const UserValidation_1 = require("../Middlewares/UserValidation/UserValidation");
 const UserRouter = express_1.default.Router();
+// user registration routes:
 UserRouter.route("/registeruser").post(UserValidation_1.UserRegisterValidation, UserController_1.UsersRegistration);
+// user login routes:
 UserRouter.route("/loginuser").post(UserValidation_1.UserLoginValidation, UserController_1.UsersLogin);
+// get single user:
 UserRouter.route("/getsingleuser/:userID").get(UserController_1.GetSingleUser);
+// All user routes:
+UserRouter.route("/getsingleuser").get(UserController_1.GetUser);
+// Update user routes:
+UserRouter.route("/updateuser/:userID").patch(UserController_1.updateOneUser);
+// Delete user routes:
+UserRouter.route("/deleteuser/:userID").delete(UserController_1.DeleteAUser);
 exports.default = UserRouter;

@@ -73,6 +73,51 @@ export const registerUser = AsyncHandler(
     }
   }
 );
+export const LoginUser = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { password, email, confirmPassword } = req.body;
+
+      const checkEmail = await UserModel.findOne({ email, password });
+      //checking if the user already exists
+      if (!checkEmail) {
+        next(
+          new AppError({
+            message: "User already exits with this account",
+            httpcode: Https.FORBIDDEN,
+          })
+        );
+      }
+      //comparing my password using Bcrypt
+      const checkpassword = await bcrypt.compare(
+        password,
+        checkEmail!.password
+      );
+
+      if (!checkpassword) {
+        next(
+          new AppError({
+            message: "Password is not correct",
+            httpcode: Https.CONFLICT,
+          })
+        );
+      }
+
+      //comparing the email and password
+      if (checkpassword && checkEmail) {
+        return res.status(200).json({
+          message: "Login Successfull",
+          data: checkEmail,
+        });
+      }
+    } catch (err: any) {
+      return res.status(Https.NOT_FOUND).json({
+        message: "Error",
+        data: err.message,
+      });
+    }
+  }
+);
 
 //getting  a  Single User
 export const getOneUser = AsyncHandler(
@@ -98,6 +143,51 @@ export const getOneUser = AsyncHandler(
       });
     } catch (err: any) {
       return res.status(Https.NOT_FOUND).json({
+        message: "Error",
+        data: err.message,
+      });
+    }
+  }
+);
+
+//updating a user
+export const updateOneUser = AsyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { userName } = req.body;
+      const user = await UserModel.findByIdAndUpdate(
+        id,
+        { userName },
+        { new: true }
+      );
+
+      return res.status(Https.OK).json({
+        message: "found",
+        data: user,
+      });
+    } catch (err: any) {
+      return res.status(Https.NOT_FOUND).json({
+        message: "Error",
+        data: err.message,
+      });
+    }
+  }
+);
+
+//deleting a user
+export const deleteOneUser = AsyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const { userName } = req.body;
+      const user = await UserModel.findByIdAndDelete(req.params.UserID);
+
+      return res.status(200).json({
+        message: "found",
+        data: user,
+      });
+    } catch (err: any) {
+      return res.status(404).json({
         message: "Error",
         data: err.message,
       });

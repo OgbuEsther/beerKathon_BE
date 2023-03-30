@@ -4,9 +4,7 @@ import EnvironmentalVariables from "./Config/EnvironmentalVariables";
 
 import { AppConfig } from "./app";
 
-// const PORT = EnvironmentVariables.PORT;
 const Port = 3090;
-// const Port = EnvironmentalVariables.PORT;
 
 const app: Application = express();
 AppConfig(app);
@@ -19,7 +17,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 const server = app.listen(Port, () => {
-  console.log("");
   console.log("Server is up and running on port", Port);
 });
 

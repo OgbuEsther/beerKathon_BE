@@ -1,10 +1,10 @@
 import express, { Application, Request, Response } from "express";
 import { DBCONNECTION } from "./Config/Database";
-import EnvironmentalVariables from "./Config/EnvironmentalVariables";
 
 import { AppConfig } from "./app";
+import { EnvironmentalVariables } from "./Config/EnvironmentalVariables";
 
-const Port = 3090;
+const port = EnvironmentalVariables.PORT;
 
 const app: Application = express();
 AppConfig(app);
@@ -12,27 +12,23 @@ DBCONNECTION();
 
 app.get("/", (req: Request, res: Response) => {
   return res.status(200).json({
-    message: "Server is up and running",
+    message: "API READY FOR MATCHES PREDICTION",
   });
 });
 
-const server = app.listen(Port, () => {
-  console.log("Server is up and running on port", Port);
+const server = app.listen(port, () => {
+  console.log("");
+  console.log("Server is up and running on port", port);
 });
 
 // To protect my server from crashing when users do what they are not supposed to do
-
-process.on("uncaughtException", (err: Error) => {
-  console.log("shutting down server: uncaughtException");
-  console.log(err);
-
+process.on("uncaughtException", (error: Error) => {
+  // console.log("Stop here: uncaughtexpression")
+  // console.log(error)
   process.exit(1);
 });
 
-process.on("unhandledRejection", (reason: any) => {
-  console.log("shutting down server: unhandledRejection");
-  console.log(reason);
-
+process.on("unhandledRejection", (res) => {
   server.close(() => {
     process.exit(1);
   });

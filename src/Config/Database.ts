@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
-import EnvironmentalVariables from "./EnvironmentalVariables";
 
-const db_Url = "mongodb://0.0.0.0:27017/endpoints";
+import { EnvironmentalVariables } from "./EnvironmentalVariables";
 
-// const LIVEURI = EnvironmentalVariables.MONGODB_STRING;
+const LIVEURI = EnvironmentalVariables.MONGODB_STRING;
 
 export const DBCONNECTION = async () => {
   try {
-    const conn = await mongoose.connect(db_Url);
+    const conn = await mongoose.connect(LIVEURI);
     console.log("");
     console.log(`Database is connected to ${conn.connection.host}`);
   } catch (error) {

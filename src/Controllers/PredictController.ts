@@ -55,13 +55,16 @@ export const createPrediction = AsyncHandler(async(req:Request  , res:Response, 
     }
 
     
-
+return res.status(200).json({
+    message : "Success",
+    
+})
 })
 
 
 // user can view his/her predictions
 
-export const viewAllPredictions = async (req: Request, res: Response) => {
+export const viewAllPredictions = AsyncHandler(async (req: Request, res: Response , next:NextFunction) => {
     try {
       const { userid } = req.params;
       const user = await UserModels.findById(userid).populate({
@@ -71,23 +74,41 @@ export const viewAllPredictions = async (req: Request, res: Response) => {
         },
       });
   
+
+      if (!user) {
+        next(
+          new AppError({
+            message: "User not found",
+            httpcode: HTTPCODES.NOT_FOUND,
+          })
+        );
+      }
       return res.status(404).json({
         message: "user prediction",
         data: user?.predict,
       });
     } catch (error) {
       return res.status(404).json({
-        message: "Erro",
+        message: "Error occurred in the view user prediction logic",
       });
     }
-  };
-  
+  }
+)
 
 //view all predictions (the admin is able to view all predictions)
 
-export const allPredictions = async (req: Request, res: Response) => {
+export const allPredictions = AsyncHandler(async (req: Request, res: Response , next:NextFunction) => {
     try {
       const user = await PredictModel.find();
+
+      if (!user) {
+        next(
+          new AppError({
+            message: "User not found",
+            httpcode: HTTPCODES.NOT_FOUND,
+          })
+        );
+      }
   
       return res.status(200).json({
         message: "user prediction",
@@ -98,4 +119,102 @@ export const allPredictions = async (req: Request, res: Response) => {
         message: "Error",
       });
     }
-  };
+  }
+)
+
+  //the leaderboard  , making comparisons between the user predict scores and the admin actual set score
+  export const predictionTable = AsyncHandler(
+    async (req: Request, res: Response , next:NextFunction) => {
+        try {
+          const predict = await PredictModel.find();
+          if (!predict) {
+            next(
+              new AppError({
+                message: "couldn't find the predict model ",
+                httpcode: HTTPCODES.FORBIDDEN,
+              })
+            );
+          }
+          const match = await MatchModels.find();
+          if (!match) {
+            next(
+              new AppError({
+                message: "couldn't get a match ",
+                httpcode: HTTPCODES.FORBIDDEN,
+              })
+            );
+          }
+      
+          const table = match.filter((el) => {
+            return predict.some((props) => el.scoreEntry === props.scoreEntry);
+          });
+          if (!table) {
+            next(
+              new AppError({
+                message: "couldn't get a correct prediction ",
+                httpcode: HTTPCODES.FORBIDDEN,
+              })
+            );
+          }
+      
+      
+          return res.status(200).json({
+            message: " prediction table",
+            data: table,
+          });
+        } catch (error) {
+          return res.status(404).json({
+            message: "Error",
+          });
+        }
+      }
+  )
+
+
+  //user prediction
+
+  export const userPredictionTable = AsyncHandler(
+    async (req: Request, res: Response , next:NextFunction) => {
+    try {
+      const { id, ID } = req.params;
+      const predict = await UserModels.findById(id).populate({
+        path: "predict",
+      });
+      const match = await MatchModels.find();
+  if(!match){
+    next(
+        new AppError({
+          message: "couldn't get match model",
+          httpcode: HTTPCODES.FORBIDDEN,
+        })
+      );
+
+  }
+      const table = match.filter((el) => {
+        return predict!.predict.some(
+          (props) => el.scoreEntry === props.scoreEntry,
+        );
+      });
+
+      if(!table){
+        next(
+            new AppError({
+              message: "couldn't get user prediction",
+              httpcode: HTTPCODES.FORBIDDEN,
+            })
+          )
+      }
+  
+      return res.status(200).json({
+        message: " prediction table",
+        data: table,
+      });
+    } catch (error) {
+      return res.status(404).json({
+        message: "Error",
+      });
+    }
+  }
+
+
+  )

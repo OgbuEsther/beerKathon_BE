@@ -59,7 +59,7 @@ export const createPrediction = AsyncHandler(async(req:Request  , res:Response, 
 })
 
 
-// view all predictions
+// user can view his/her predictions
 
 export const viewAllPredictions = async (req: Request, res: Response) => {
     try {
@@ -82,3 +82,20 @@ export const viewAllPredictions = async (req: Request, res: Response) => {
     }
   };
   
+
+//view all predictions (the admin is able to view all predictions)
+
+export const allPredictions = async (req: Request, res: Response) => {
+    try {
+      const user = await PredictModel.find();
+  
+      return res.status(200).json({
+        message: "user prediction",
+        data: user,
+      });
+    } catch (error) {
+      return res.status(404).json({
+        message: "Error",
+      });
+    }
+  };

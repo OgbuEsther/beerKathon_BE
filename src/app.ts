@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { ErrorHandler } from "./Middlewares/Errorhandle/Errorhandle";
 
 export const AppConfig = (app: Application) => {
+  //Intializing middlewares
   app.use(express.json());
   app.use(cors());
   app.use(morgan("dev"));

@@ -151,46 +151,42 @@ export const getOneUser = AsyncHandler(
 );
 
 //updating a user
-export const updateOneUser = AsyncHandler(
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { userName } = req.body;
-      const user = await UserModel.findByIdAndUpdate(
-        id,
-        { userName },
-        { new: true }
-      );
+export const updateUser = AsyncHandler(async (req: Request, res: Response) => {
+  try {
+    const { userID } = req.params;
+    const { userName } = req.body;
+    const user = await UserModel.findByIdAndUpdate(
+      userID,
+      { userName },
+      { new: true }
+    );
 
-      return res.status(Https.OK).json({
-        message: "found",
-        data: user,
-      });
-    } catch (err: any) {
-      return res.status(Https.NOT_FOUND).json({
-        message: "Error",
-        data: err.message,
-      });
-    }
+    return res.status(Https.OK).json({
+      message: "found",
+      data: user,
+    });
+  } catch (err: any) {
+    return res.status(Https.NOT_FOUND).json({
+      message: "Error",
+      data: err.message,
+    });
   }
-);
+});
 
 //deleting a user
-export const deleteOneUser = AsyncHandler(
-  async (req: Request, res: Response) => {
-    try {
-      const { userName } = req.body;
-      const user = await UserModel.findByIdAndDelete(req.params.UserID);
+export const deleteUser = AsyncHandler(async (req: Request, res: Response) => {
+  try {
+    const { userName } = req.body;
+    const user = await UserModel.findByIdAndDelete(req.params.UserID);
 
-      return res.status(200).json({
-        message: "found",
-        data: user,
-      });
-    } catch (err: any) {
-      return res.status(404).json({
-        message: "Error",
-        data: err.message,
-      });
-    }
+    return res.status(200).json({
+      message: "found",
+      data: user,
+    });
+  } catch (err: any) {
+    return res.status(404).json({
+      message: "Error",
+      data: err.message,
+    });
   }
-);
+});

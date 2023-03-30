@@ -15,7 +15,7 @@ export const getUser = AsyncHandler(
         data: user,
       });
     } catch (err: any) {
-      return res.status(404).json({
+      return res.status(Https.NOT_FOUND).json({
         message: "Error",
         data: err.message,
       });
@@ -35,14 +35,14 @@ export const registerUser = AsyncHandler(
 
       const user = await UserModel.findOne({ email });
       //checking if the user already exists
-      if (user) {
-        next(
-          new AppError({
-            message: "User already exits with this account",
-            httpcode: Https.FORBIDDEN,
-          })
-        );
-      }
+      // if (user) {
+      //   next(
+      //     new AppError({
+      //       message: "User already exits with this account",
+      //       httpcode: Https.FORBIDDEN,
+      //     })
+      //   );
+      // }
       //Checking id there is the user is not registered
       if (!user) {
         next(

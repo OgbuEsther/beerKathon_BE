@@ -47,7 +47,7 @@ export const GetSingleUser = AsyncHandler(
 // Users Registration:
 export const UsersRegistration = AsyncHandler(
   async (req: any, res: Response, next: NextFunction) => {
-    const { name, email, phoneNumber, username, password } = req.body;
+    const { name, email, phoneNumber, userName, password } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -66,7 +66,7 @@ export const UsersRegistration = AsyncHandler(
     const Users = await UserModels.create({
       name,
       email,
-      username,
+      userName,
       phoneNumber: "234" + phoneNumber,
       password: hashedPassword,
       confirmPassword: hashedPassword,

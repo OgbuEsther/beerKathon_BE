@@ -44,3 +44,5 @@ const predictSchema = new mongoose.Schema({
 
 
 const PredictModel = mongoose.model<predict>("predicts" , predictSchema)
+
+export default PredictModel

@@ -24,13 +24,18 @@ const server = app.listen(Port, () => {
 });
 
 // To protect my server from crashing when users do what they are not supposed to do
-process.on("uncaughtException", (error: Error) => {
-  // console.log("Stop here: uncaughtexpression")
-  // console.log(error)
+
+process.on("uncaughtException", (err: Error) => {
+  console.log("shutting down server: uncaughtException");
+  console.log(err);
+
   process.exit(1);
 });
 
-process.on("unhandledRejection", (res) => {
+process.on("unhandledRejection", (reason: any) => {
+  console.log("shutting down server: unhandledRejection");
+  console.log(reason);
+
   server.close(() => {
     process.exit(1);
   });

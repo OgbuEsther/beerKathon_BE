@@ -1,24 +1,13 @@
 import mongoose from "mongoose";
+
 import isEmail from "validator/lib/isEmail";
+import { iUser } from "../AllInterfaces/AllInterfaces";
 
-interface iUser {
-  phoneNumber: number;
-  isAdmin: boolean;
-  email: string;
-  password: string;
-  userName: string;
-  name: string;
-  confirmPassword: string;
-  predict: any[];
-}
-
-interface iUserData extends iUser, mongoose.Document {}
-
-const userModel = new mongoose.Schema<iUserData>(
+const UserSchema = new mongoose.Schema<iUser>(
   {
-    isAdmin: {
-      type: Boolean,
-      default: false,
+    name: {
+      type: String,
+      required: [true, "Please enter your name"],
     },
     email: {
       type: String,
@@ -28,22 +17,22 @@ const userModel = new mongoose.Schema<iUserData>(
       trim: true,
       validate: [isEmail, "Please enter a valid email"],
     },
-    password: {
-      type: String,
-      required: [true, "Please enter your phone number"],
-    },
     userName: {
       type: String,
       required: [true, "Please enter your Username"],
     },
-    name: {
-      type: String,
-      required: [true, "Please enter your name"],
+
+    isAdmin: {
+      type: Boolean,
+      default: false,
     },
     phoneNumber: {
       type: Number,
     },
-
+    password: {
+      type: String,
+      required: [true, "Please enter your phone number"],
+    },
     confirmPassword: {
       type: String,
       required: [true, "Please confirm your password"],
@@ -59,4 +48,4 @@ const userModel = new mongoose.Schema<iUserData>(
   { timestamps: true }
 );
 
-export default mongoose.model<iUserData>("users", userModel);
+export default mongoose.model<iUser>("Users", UserSchema);

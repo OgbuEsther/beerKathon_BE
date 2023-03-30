@@ -10,6 +10,7 @@ import {
 const router = express.Router();
 
 router.route("/:userid/view-user-predictions").get(viewAllPredictions);
+router.route("/:id/user-predictions").get(userPredictionTable);
 
 router.route("/:id/:ID/create-prediction").post(createPrediction);
 

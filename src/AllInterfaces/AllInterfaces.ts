@@ -1,3 +1,14 @@
+export interface iUser {
+  name: string;
+  email: string;
+  userName: string;
+  phoneNumber: number;
+  isAdmin: boolean;
+  password: string;
+  confirmPassword: string;
+  predict: any[];
+}
+
 export interface iMatch {
   startPlay: boolean;
   stopPlay: boolean;

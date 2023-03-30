@@ -1,8 +1,25 @@
 import { NextFunction, Request, Response } from "express";
 import UserModels from "../Models/UserModels";
-import { AsyncHandler } from "../Utils/AsyncHandler";
-import bcrypt from "bcrypt";
 import { AppError, HTTPCODES } from "../Utils/AppError";
+import bcrypt from "bcrypt";
+import AsyncHandler from "../Utils/AsyncHandler";
+
+// Get all users:
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    const user = await UserModels.find();
+
+    return res.status(200).json({
+      message: "found",
+      data: user,
+    });
+  } catch (err: any) {
+    return res.status(404).json({
+      message: "Error",
+      data: err.message,
+    });
+  }
+};
 
 // Users Registration:
 export const UsersRegistration = AsyncHandler(

@@ -28,3 +28,21 @@ export interface iMatch {
 
   predict: any[];
 }
+
+
+export interface Ipredict {
+
+    teamA: string;
+    teamB: string;
+  
+    teamAScore: number;
+    teamBScore: number;
+  
+    dateTime: string;
+    amount: number;
+    prize: number;
+  
+    scoreEntry: string;
+    user: {};
+ 
+}

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import AsyncHandler from "../Utils/AsyncHandler";
 
 // Get all users:
-export const getUser = async (req: Request, res: Response) => {
+export const GetUser = async (req: Request, res: Response) => {
   try {
     const user = await UserModels.find();
 
@@ -113,5 +113,53 @@ export const UsersLogin = AsyncHandler(
         data: CheckEmail,
       });
     }
+  }
+);
+
+// Update one user:
+export const updateOneUser = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userName } = req.body;
+
+    const user = await UserModels.findByIdAndUpdate(
+      req.params.userID,
+      { userName },
+      { new: true }
+    );
+
+    if (!user) {
+      next(
+        new AppError({
+          message: "An error occured in updating username",
+          httpcode: HTTPCODES.INTERNAL_SERVER_ERROR,
+        })
+      );
+    }
+
+    return res.status(201).json({
+      message: "Successfully updated the user's username",
+      data: user,
+    });
+  }
+);
+
+// Delete a user:
+export const DeleteAUser = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserModels.findByIdAndDelete(req.params.userID);
+
+    if (!user) {
+      next(
+        new AppError({
+          message: "An error occured in deleting this user",
+          httpcode: HTTPCODES.INTERNAL_SERVER_ERROR,
+        })
+      );
+    }
+
+    return res.status(201).json({
+      message: "Successfully deleted this user",
+      data: user,
+    });
   }
 );

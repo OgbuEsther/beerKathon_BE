@@ -3,6 +3,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 
 import morgan from "morgan";
+import { ErrorHandler } from "./Middlewares/Errorhandle/Errorhandle";
 
 export const AppConfig = (app: Application) => {
   app.use(express.json());
@@ -24,5 +25,5 @@ export const AppConfig = (app: Application) => {
   //       })
   //     );
   //   });
-  //   app.use(ErrorHandler);
+  app.use(ErrorHandler);
 };

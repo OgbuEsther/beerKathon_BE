@@ -151,9 +151,9 @@ exports.PredictionTable = (0, AsyncHandler_1.default)((req, res, next) => __awai
 //user prediction
 exports.userPredictionTable = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id, ID } = req.params;
-        const predict = yield UserModels_1.default.findById(id).populate({
-            path: "predict",
+        const { userID } = req.params;
+        const prediction = yield UserModels_1.default.findById(userID).populate({
+            path: "predicts",
         });
         const match = yield MatchModels_1.default.find();
         if (!match) {
@@ -163,21 +163,22 @@ exports.userPredictionTable = (0, AsyncHandler_1.default)((req, res, next) => __
             }));
         }
         const table = match.filter((el) => {
-            return predict.predict.some((props) => el.scoreEntry === props.scoreEntry);
+            return prediction.predict.some((props) => el.scoreEntry === props.scoreEntry);
         });
+        //new model will contain what is inside our predict model
         if (!table) {
             next(new AppError_1.AppError({
                 message: "couldn't get user prediction",
                 httpcode: AppError_1.HTTPCODES.FORBIDDEN,
             }));
         }
-        return res.status(200).json({
-            message: " prediction table",
+        return res.status(AppError_1.HTTPCODES.OK).json({
+            message: " Prediction table",
             data: table,
         });
     }
     catch (error) {
-        return res.status(404).json({
+        return res.status(AppError_1.HTTPCODES.BAD_GATEWAY).json({
             message: "Error",
         });
     }

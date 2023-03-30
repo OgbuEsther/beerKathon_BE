@@ -169,9 +169,9 @@ export const PredictionTable = AsyncHandler(
 export const userPredictionTable = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id, ID } = req.params;
-      const predict = await UserModels.findById(id).populate({
-        path: "predict",
+      const { userID } = req.params;
+      const prediction = await UserModels.findById(userID).populate({
+        path: "predicts",
       });
       const match = await MatchModels.find();
       if (!match) {
@@ -183,10 +183,12 @@ export const userPredictionTable = AsyncHandler(
         );
       }
       const table = match.filter((el) => {
-        return predict!.predict.some(
+        return prediction!.predict.some(
           (props) => el.scoreEntry === props.scoreEntry
         );
       });
+
+      //new model will contain what is inside our predict model
 
       if (!table) {
         next(
@@ -197,12 +199,12 @@ export const userPredictionTable = AsyncHandler(
         );
       }
 
-      return res.status(200).json({
-        message: " prediction table",
+      return res.status(HTTPCODES.OK).json({
+        message: " Prediction table",
         data: table,
       });
     } catch (error) {
-      return res.status(404).json({
+      return res.status(HTTPCODES.BAD_GATEWAY).json({
         message: "Error",
       });
     }

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import MatchModels from "../Models/MatchModels";
 import PredictModel from "../Models/PredictModels";
 import UserModels from "../Models/UserModels";
+import { AppError, HTTPCODES } from "../Utils/AppError";
 import AsyncHandler from "../Utils/AsyncHandler"
 
 
@@ -16,7 +17,7 @@ export const createPrediction = AsyncHandler(async(req:Request  , res:Response, 
 
     if(user){
        if(match?.stopPlay){
-        return res.status(400).json({
+        return res.status(HTTPCODES.BAD_REQUEST).json({
             message : "the match has ended"
         })
        } else{
@@ -33,17 +34,51 @@ export const createPrediction = AsyncHandler(async(req:Request  , res:Response, 
 
           user.predict.push(new mongoose.Types.ObjectId(newMatch?._id));
           user.save();
-          console.log(newMatch);
+        
           
           match?.predict.push(new mongoose.Types.ObjectId(newMatch?._id));
           match?.save();
-          console.log(newMatch);
+   
           return res.status(201).json({
             message: "Prediction entry successful",
             data: newMatch,
           });
        }
         
+    }else{
+        next(
+            new AppError({
+                message : "user can't be found",
+                httpcode : HTTPCODES.BAD_REQUEST
+            })
+        )
     }
 
+    
+
 })
+
+
+// view all predictions
+
+export const viewAllPredictions = async (req: Request, res: Response) => {
+    try {
+      const { userid } = req.params;
+      const user = await UserModels.findById(userid).populate({
+        path: "predict",
+        options: {
+          createdAt: -1,
+        },
+      });
+  
+      return res.status(404).json({
+        message: "user prediction",
+        data: user?.predict,
+      });
+    } catch (error) {
+      return res.status(404).json({
+        message: "Erro",
+      });
+    }
+  };
+  

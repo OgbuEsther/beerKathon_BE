@@ -1,7 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
 
-import isEmail from "validator/lib/isEmail";
-
 import { iMatch } from "../AllInterfaces/AllInterfaces";
 
 const MatchSchema: Schema<iMatch> = new Schema(

@@ -21,6 +21,7 @@ const AsyncHandler_1 = __importDefault(require("../Utils/AsyncHandler"));
 exports.CreateMatch = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { teamA, teamB, teamAScore, teamBScore, Odds, dateTime } = req.body;
     const user = yield UserModels_1.default.findById(req.params.userID);
+    const UploadMatchDate = new Date().toDateString();
     if (user === null || user === void 0 ? void 0 : user.isAdmin) {
         const Match = yield MatchModels_1.default.create({
             teamA,
@@ -31,7 +32,7 @@ exports.CreateMatch = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(
             stopPlay: false,
             startPlay: false,
             scoreEntry: `${teamAScore} VS ${teamBScore}`,
-            dateTime,
+            dateTime: UploadMatchDate,
         });
         return res.status(AppError_1.HTTPCODES.OK).json({
             message: "Successfully created Match",

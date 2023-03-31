@@ -13,7 +13,6 @@ const MatchSchema: Schema<iMatch> = new Schema(
     teamA: {
       type: String,
     },
-
     teamB: {
       type: String,
     },

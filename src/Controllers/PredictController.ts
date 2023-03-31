@@ -171,7 +171,7 @@ export const userPredictionTable = AsyncHandler(
     try {
       const { userID } = req.params;
       const prediction = await UserModels.findById(userID).populate({
-        path: "predicts",
+        path: "predict",
       });
       const match = await MatchModels.find();
       if (!match) {

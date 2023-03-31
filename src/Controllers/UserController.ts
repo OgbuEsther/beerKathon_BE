@@ -115,3 +115,57 @@ export const UsersLogin = AsyncHandler(
     }
   }
 );
+
+// Update one user:
+export const updateOneUser = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userName } = req.body;
+
+    const user = await UserModels.findByIdAndUpdate(
+      req.params.userID,
+      { userName },
+      { new: true }
+    );
+
+    if (!user) {
+      next(
+        new AppError({
+          message: "An error occured in updating username",
+          httpcode: HTTPCODES.INTERNAL_SERVER_ERROR,
+        })
+      );
+    }
+
+    return res.status(201).json({
+      message: "Successfully updated the user's username",
+      data: user,
+    });
+  }
+);
+
+// Delete a user:
+export const updateOneUser = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userName } = req.body;
+
+    const user = await UserModels.findByIdAndUpdate(
+      req.params.userID,
+      { userName },
+      { new: true }
+    );
+
+    if (!user) {
+      next(
+        new AppError({
+          message: "An error occured in updating username",
+          httpcode: HTTPCODES.INTERNAL_SERVER_ERROR,
+        })
+      );
+    }
+
+    return res.status(201).json({
+      message: "Successfully updated the user's username",
+      data: user,
+    });
+  }
+);

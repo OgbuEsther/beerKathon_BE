@@ -9,11 +9,11 @@ import {
 
 const router = express.Router();
 
-router.route("/:userid/view-user-predictions").get(ViewAllPredictions);
+router.route("/:userID/view-user-predictions").get(ViewAllPredictions);
 
-router.route("/:id/user-predictions").get(userPredictionTable);
+router.route("/:userID/user-predictions").get(userPredictionTable);
 
-router.route("/:id/:ID/create-prediction").post(CreatePrediction);
+router.route("/:userID/:matchID/create-prediction").post(CreatePrediction);
 
 router.route("/prediction").get(AllPredictions);
 

@@ -65,7 +65,7 @@ exports.ViewAllPredictions = (0, AsyncHandler_1.default)((req, res, next) => __a
     try {
         const { userID } = req.params;
         const user = yield UserModels_1.default.findById(userID).populate({
-            path: "predicts",
+            path: "predict",
             options: {
                 sort: { createdAt: -1 },
             },
@@ -153,7 +153,7 @@ exports.userPredictionTable = (0, AsyncHandler_1.default)((req, res, next) => __
     try {
         const { userID } = req.params;
         const prediction = yield UserModels_1.default.findById(userID).populate({
-            path: "predicts",
+            path: "predict",
         });
         const match = yield MatchModels_1.default.find();
         if (!match) {

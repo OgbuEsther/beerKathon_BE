@@ -11,6 +11,8 @@ export const CreateMatch = AsyncHandler(
 
     const user = await UserModels.findById(req.params.userID);
 
+    const UploadMatchDate = new Date().toDateString();
+
     if (user?.isAdmin) {
       const Match = await MatchModels.create({
         teamA,
@@ -21,7 +23,7 @@ export const CreateMatch = AsyncHandler(
         stopPlay: false,
         startPlay: false,
         scoreEntry: `${teamAScore} VS ${teamBScore}`,
-        dateTime,
+        dateTime: UploadMatchDate,
       });
 
       return res.status(HTTPCODES.OK).json({

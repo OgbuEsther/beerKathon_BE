@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { array } from "joi";
 import MatchModels from "../Models/MatchModels";
 import UserModels from "../Models/UserModels";
 import { AppError, HTTPCODES } from "../Utils/AppError";
@@ -112,38 +113,44 @@ export const UpdateScoresOfMatches = AsyncHandler(
   }
 );
 
-export const updateStartMatch = async (req: Request, res: Response) => {
-  try {
-    const { ID, id } = req.params;
-
-    const user = await userModel.findById(id);
+// Allow an admin start matches and for the matches to end automatically
+export const UpdateStartMatch = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { teamAScore, teamBScore, startPlay } = req.body;
 
-    if (user?.isAdmin) {
-      const match = await matchModel.findByIdAndUpdate(
-        ID,
+    const GetAdmin = await UserModels.findById(req.params.userID);
+
+    if (GetAdmin?.isAdmin) {
+      const Match = await MatchModels.findByIdAndUpdate(
+        req.params.matchID,
         {
           startPlay: true,
         },
         { new: true }
       );
 
+      //   to stop the match after 2 mins instead of the normal 90 mins:
       setTimeout(async () => {
-        await matchModel.findByIdAndUpdate(
-          ID,
+        await MatchModels.findByIdAndUpdate(
+          req.params.matchID,
           {
             stopPlay: true,
           },
           { new: true }
         );
-      }, 60000);
+      }, 120000);
 
-      return res.status(200).json({
-        message: "found",
-        data: match,
+      return res.status(HTTPCODES.OK).json({
+        message: "Match has started",
+        data: Match,
       });
+    } else {
+      next(
+        new AppError({
+          message: "You are not an admin, you can't start a match",
+          httpcode: HTTPCODES.UNAUTHORIZED,
+        })
+      );
     }
-  } catch (error) {
-    console.log(error);
   }
-};
+);

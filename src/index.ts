@@ -1,10 +1,10 @@
 import express, { Application, Request, Response } from "express";
 import { DBCONNECTION } from "./Config/Database";
 
-import { EnvironmentVariables } from "./Config/EnvironmentVariables";
 import { AppConfig } from "./app";
+import { EnvironmentalVariables } from "./Config/EnvironmentalVariables";
 
-const port = EnvironmentVariables.PORT;
+const port = EnvironmentalVariables.PORT;
 
 const app: Application = express();
 AppConfig(app);

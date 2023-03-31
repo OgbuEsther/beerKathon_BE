@@ -4,11 +4,11 @@ import cors from "cors";
 
 import morgan from "morgan";
 
-import UserRouter from "./Routes/UserRoutes";
+import UserRouter from "./Routes/UserRoute";
 
-import MatchRouter from "./Routes/MatchRoutes";
+// import MatchRouter from "./Routes/MatchRoutes";
 
-import PredictRouter from "./Routes/PredictRoutes";
+// import PredictRouter from "./Routes/PredictRoutes";
 
 import { AppError, HTTPCODES } from "./Utils/AppError";
 
@@ -21,8 +21,8 @@ export const AppConfig = (app: Application) => {
 
   // Configuring the routes:
   app.use("/api", UserRouter);
-  app.use("/api", UserRouter);
-  app.use("/api", PredictRouter);
+  // app.use("/api", UserRouter);
+  // app.use("/api", PredictRouter);
 
   app.all("*", (req: Request, res: Response, next: NextFunction) => {
     next(

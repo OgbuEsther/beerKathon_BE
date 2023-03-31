@@ -1,79 +1,71 @@
-import {NextFunction, Request , Response} from "express"
+import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import MatchModels from "../Models/MatchModels";
 import PredictModel from "../Models/PredictModels";
 import UserModels from "../Models/UserModels";
 import { AppError, HTTPCODES } from "../Utils/AppError";
-import AsyncHandler from "../Utils/AsyncHandler"
+import AsyncHandler from "../Utils/AsyncHandler";
 
-
-//this is to create a prediction
-
-export const createPrediction = AsyncHandler(async(req:Request  , res:Response, next:NextFunction)=>{
-    const { id, ID } = req.params;
+// After users have signed up, they have the ability to upload their predicted score per match by a certain time deadline
+export const CreatePrediction = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userID, matchID } = req.params;
     const { teamAScore, teamBScore, amount } = req.body;
-    const user = await UserModels.findById(id);
-    const match = await MatchModels.findById(ID);
+    const user = await UserModels.findById(userID);
+    const match = await MatchModels.findById(matchID);
 
-    if(user){
-       if(match?.stopPlay){
+    if (user) {
+      // If the match has ended, the users can't predict again.
+      if (match?.stopPlay) {
         return res.status(HTTPCODES.BAD_REQUEST).json({
-            message : "the match has ended"
+          message: "The match has ended",
+        });
+      } else {
+        // Here they can upload their prediction for a march
+        const PredictMatch = await PredictModel.create({
+          teamA: match?.teamA,
+          teamB: match?.teamB,
+          teamAScore,
+          teamBScore,
+          amount,
+          prize: match?.Odds! * amount,
+
+          scoreEntry: `${teamAScore} VS ${teamBScore}`,
+        });
+
+        user.predict.push(new mongoose.Types.ObjectId(PredictMatch?._id));
+        user.save();
+
+        match?.predict.push(new mongoose.Types.ObjectId(PredictMatch?._id));
+        match?.save();
+
+        return res.status(HTTPCODES.OK).json({
+          message: "Prediction entry successful",
+          data: PredictMatch,
+        });
+      }
+    } else {
+      next(
+        new AppError({
+          message: "User can't be found",
+          httpcode: HTTPCODES.BAD_REQUEST,
         })
-       } else{
-        const newMatch = await PredictModel.create({
-            teamA: match?.teamA,
-            teamB: match?.teamB,
-            teamAScore,
-            teamBScore,
-            amount,
-            prize: match?.Odds! * amount,
-  
-            scoreEntry: `${teamAScore} v ${teamBScore}`,
-          });
-
-          user.predict.push(new mongoose.Types.ObjectId(newMatch?._id));
-          user.save();
-        
-          
-          match?.predict.push(new mongoose.Types.ObjectId(newMatch?._id));
-          match?.save();
-   
-          return res.status(201).json({
-            message: "Prediction entry successful",
-            data: newMatch,
-          });
-       }
-        
-    }else{
-        next(
-            new AppError({
-                message : "user can't be found",
-                httpcode : HTTPCODES.BAD_REQUEST
-            })
-        )
+      );
     }
+  }
+);
 
-    
-return res.status(200).json({
-    message : "Success",
-    
-})
-})
-
-
-// user can view his/her predictions
-
-export const viewAllPredictions = AsyncHandler(async (req: Request, res: Response , next:NextFunction) => {
+// Users can view his/her predictions
+export const ViewAllPredictions = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userid } = req.params;
-      const user = await UserModels.findById(userid).populate({
-        path: "predict",
+      const { userID } = req.params;
+      const user = await UserModels.findById(userID).populate({
+        path: "predicts",
         options: {
-          createdAt: -1,
+          sort: { createdAt: -1 },
         },
       });
-  
 
       if (!user) {
         next(
@@ -83,21 +75,21 @@ export const viewAllPredictions = AsyncHandler(async (req: Request, res: Respons
           })
         );
       }
-      return res.status(404).json({
-        message: "user prediction",
+      return res.status(HTTPCODES.OK).json({
+        message: "User prediction",
         data: user?.predict,
       });
     } catch (error) {
-      return res.status(404).json({
+      return res.status(HTTPCODES.BAD_REQUEST).json({
         message: "Error occurred in the view user prediction logic",
       });
     }
   }
-)
+);
 
-//view all predictions (the admin is able to view all predictions)
-
-export const allPredictions = AsyncHandler(async (req: Request, res: Response , next:NextFunction) => {
+//Allow users view all predictions (the admin is able to view all predictions)
+export const AllPredictions = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = await PredictModel.find();
 
@@ -109,9 +101,9 @@ export const allPredictions = AsyncHandler(async (req: Request, res: Response , 
           })
         );
       }
-  
-      return res.status(200).json({
-        message: "user prediction",
+
+      return res.status(HTTPCODES.OK).json({
+        message: "All User Predictions",
         data: user,
       });
     } catch (error) {
@@ -120,91 +112,46 @@ export const allPredictions = AsyncHandler(async (req: Request, res: Response , 
       });
     }
   }
-)
+);
 
-  //the leaderboard  , making comparisons between the user predict scores and the admin actual set score
-  export const predictionTable = AsyncHandler(
-    async (req: Request, res: Response , next:NextFunction) => {
-        try {
-          const predict = await PredictModel.find();
-          if (!predict) {
-            next(
-              new AppError({
-                message: "couldn't find the predict model ",
-                httpcode: HTTPCODES.FORBIDDEN,
-              })
-            );
-          }
-          const match = await MatchModels.find();
-          if (!match) {
-            next(
-              new AppError({
-                message: "couldn't get a match ",
-                httpcode: HTTPCODES.FORBIDDEN,
-              })
-            );
-          }
-      
-          const table = match.filter((el) => {
-            return predict.some((props) => el.scoreEntry === props.scoreEntry);
-          });
-          if (!table) {
-            next(
-              new AppError({
-                message: "couldn't get a correct prediction ",
-                httpcode: HTTPCODES.FORBIDDEN,
-              })
-            );
-          }
-      
-      
-          return res.status(200).json({
-            message: " prediction table",
-            data: table,
-          });
-        } catch (error) {
-          return res.status(404).json({
-            message: "Error",
-          });
-        }
-      }
-  )
-
-
-  //user prediction
-
-  export const userPredictionTable = AsyncHandler(
-    async (req: Request, res: Response , next:NextFunction) => {
+//the leaderboard, making comparisons between the user predict scores and the admin actual set score
+export const PredictionTable = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id, ID } = req.params;
-      const predict = await UserModels.findById(id).populate({
-        path: "predict",
-      });
-      const match = await MatchModels.find();
-  if(!match){
-    next(
-        new AppError({
-          message: "couldn't get match model",
-          httpcode: HTTPCODES.FORBIDDEN,
-        })
-      );
-
-  }
-      const table = match.filter((el) => {
-        return predict!.predict.some(
-          (props) => el.scoreEntry === props.scoreEntry,
-        );
-      });
-
-      if(!table){
+      // To get all predictions
+      const predict = await PredictModel.find();
+      if (!predict) {
         next(
-            new AppError({
-              message: "couldn't get user prediction",
-              httpcode: HTTPCODES.FORBIDDEN,
-            })
-          )
+          new AppError({
+            message: "Couldn't find the Prediction ",
+            httpcode: HTTPCODES.FORBIDDEN,
+          })
+        );
       }
-  
+      // To get all matches
+      const match = await MatchModels.find();
+      if (!match) {
+        next(
+          new AppError({
+            message: "Couldn't get a match ",
+            httpcode: HTTPCODES.FORBIDDEN,
+          })
+        );
+      }
+
+      // For admin to filter the predictions scores of users with the actual scores of the match
+      const table = match.filter((el) => {
+        return predict.some((props) => el.scoreEntry === props.scoreEntry);
+      });
+      if (!table) {
+        next(
+          new AppError({
+            message: "couldn't get a correct prediction ",
+            httpcode: HTTPCODES.FORBIDDEN,
+          })
+        );
+      }
+
       return res.status(200).json({
         message: " prediction table",
         data: table,
@@ -215,6 +162,49 @@ export const allPredictions = AsyncHandler(async (req: Request, res: Response , 
       });
     }
   }
+);
 
+//user prediction
 
-  )
+export const userPredictionTable = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, ID } = req.params;
+      const predict = await UserModels.findById(id).populate({
+        path: "predict",
+      });
+      const match = await MatchModels.find();
+      if (!match) {
+        next(
+          new AppError({
+            message: "couldn't get match model",
+            httpcode: HTTPCODES.FORBIDDEN,
+          })
+        );
+      }
+      const table = match.filter((el) => {
+        return predict!.predict.some(
+          (props) => el.scoreEntry === props.scoreEntry
+        );
+      });
+
+      if (!table) {
+        next(
+          new AppError({
+            message: "couldn't get user prediction",
+            httpcode: HTTPCODES.FORBIDDEN,
+          })
+        );
+      }
+
+      return res.status(200).json({
+        message: " prediction table",
+        data: table,
+      });
+    } catch (error) {
+      return res.status(404).json({
+        message: "Error",
+      });
+    }
+  }
+);

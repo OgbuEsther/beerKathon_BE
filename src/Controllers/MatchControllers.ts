@@ -4,6 +4,7 @@ import UserModels from "../Models/UserModels";
 import { AppError, HTTPCODES } from "../Utils/AppError";
 import AsyncHandler from "../Utils/AsyncHandler";
 
+// ADMIN CREATE MATCHES:
 export const CreateMatch = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { teamA, teamB, teamAScore, teamBScore, Odds, dateTime } = req.body;
@@ -38,19 +39,26 @@ export const CreateMatch = AsyncHandler(
   }
 );
 
-export const viewAllMatch = async (req: Request, res: Response) => {
-  try {
-    const match = await matchModel.find();
-    const predict = await predictModel.find();
+// ADMIN AND USERS VIEW ALL MATCHES:
+export const viewAllMatch = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const Match = await MatchModels.find();
 
-    return res.status(200).json({
-      message: "found",
-      data: match,
+    if (!Match) {
+      next(
+        new AppError({
+          message: "Couldn't get all Match",
+          httpcode: HTTPCODES.BAD_REQUEST,
+        })
+      );
+    }
+
+    return res.status(HTTPCODES.OK).json({
+      message: "All Matches successfully gotten",
+      data: Match,
     });
-  } catch (error) {
-    console.log(error);
   }
-};
+);
 
 export const updateScoreMatch = async (req: Request, res: Response) => {
   try {

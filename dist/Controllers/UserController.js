@@ -52,7 +52,7 @@ exports.GetSingleUser = (0, AsyncHandler_1.default)((req, res, next) => __awaite
 }));
 // Users Registration:
 exports.UsersRegistration = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, email, phoneNumber, username, password } = req.body;
+    const { name, email, phoneNumber, userName, password } = req.body;
     const salt = yield bcrypt_1.default.genSalt(10);
     const hashedPassword = yield bcrypt_1.default.hash(password, salt);
     const findEmail = yield UserModels_1.default.findOne({ email });
@@ -65,7 +65,7 @@ exports.UsersRegistration = (0, AsyncHandler_1.default)((req, res, next) => __aw
     const Users = yield UserModels_1.default.create({
         name,
         email,
-        username,
+        userName,
         phoneNumber: "234" + phoneNumber,
         password: hashedPassword,
         confirmPassword: hashedPassword,

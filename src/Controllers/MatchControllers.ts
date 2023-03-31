@@ -4,7 +4,7 @@ import UserModels from "../Models/UserModels";
 import { AppError, HTTPCODES } from "../Utils/AppError";
 import AsyncHandler from "../Utils/AsyncHandler";
 
-// ADMIN CREATE MATCHES:
+// ADMIN CREATE MATCHES && Allow an admin upload matches for the particular match week
 export const CreateMatch = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { teamA, teamB, teamAScore, teamBScore, Odds, dateTime } = req.body;
@@ -60,49 +60,57 @@ export const viewAllMatch = AsyncHandler(
   }
 );
 
-export const updateScoreMatch = async (req: Request, res: Response) => {
-  try {
-    const { ID, id } = req.params;
+// Allow an admin automatically update the scores in real time
+export const UpdateScoresOfMatches = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { teamAScore, teamBScore } = req.body;
-    const user = await userModel.findById(id);
-    const match = await matchModel.findById(ID);
 
-    if (user?.isAdmin) {
-      if (match && match.startPlay) {
-        if (match?.stopPlay) {
-          return res.json({
-            message: "Match has ended",
-          });
+    const GetAdmin = await UserModels.findById(req.params.userID);
+    const CurrentMatch = await MatchModels.findById(req.params.matchID);
+
+    if (GetAdmin?.isAdmin) {
+      if (CurrentMatch && CurrentMatch.startPlay) {
+        if (CurrentMatch?.stopPlay) {
+          next(
+            new AppError({
+              message: "Match has ended",
+              httpcode: HTTPCODES.BAD_REQUEST,
+            })
+          );
         } else {
-          const match = await matchModel.findByIdAndUpdate(
-            ID,
+          const Matchscores = await MatchModels.findByIdAndUpdate(
+            req.params.matchID,
             {
               teamAScore,
               teamBScore,
-              scoreEntry: `${teamAScore} v ${teamBScore}`,
+              scoreEntry: `${teamAScore} VS ${teamBScore}`,
             },
             { new: true }
           );
 
-          return res.status(200).json({
-            message: "found",
-            data: match,
+          return res.status(HTTPCODES.OK).json({
+            message: "Match scores has been updated successfully",
+            data: Matchscores,
           });
         }
       } else {
-        return res.status(404).json({
-          message: "fill it up",
-        });
+        next(
+          new AppError({
+            message: "March has not started",
+            httpcode: HTTPCODES.BAD_REQUEST,
+          })
+        );
       }
     } else {
-      return res.status(404).json({
-        message: "error in user",
-      });
+      next(
+        new AppError({
+          message: "You are not an admin",
+          httpcode: HTTPCODES.UNAUTHORIZED,
+        })
+      );
     }
-  } catch (error) {
-    console.log(error);
   }
-};
+);
 
 export const updateStartMatch = async (req: Request, res: Response) => {
   try {

@@ -61,7 +61,7 @@ export const ViewAllPredictions = AsyncHandler(
     try {
       const { userID } = req.params;
       const user = await UserModels.findById(userID).populate({
-        path: "predicts",
+        path: "predict",
         options: {
           sort: { createdAt: -1 },
         },

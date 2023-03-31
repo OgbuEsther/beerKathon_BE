@@ -144,27 +144,21 @@ export const updateOneUser = AsyncHandler(
 );
 
 // Delete a user:
-export const updateOneUser = AsyncHandler(
+export const DeleteAUser = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { userName } = req.body;
-
-    const user = await UserModels.findByIdAndUpdate(
-      req.params.userID,
-      { userName },
-      { new: true }
-    );
+    const user = await UserModels.findByIdAndDelete(req.params.userID);
 
     if (!user) {
       next(
         new AppError({
-          message: "An error occured in updating username",
+          message: "An error occured in deleting this user",
           httpcode: HTTPCODES.INTERNAL_SERVER_ERROR,
         })
       );
     }
 
     return res.status(201).json({
-      message: "Successfully updated the user's username",
+      message: "Successfully deleted this user",
       data: user,
     });
   }

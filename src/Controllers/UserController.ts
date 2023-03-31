@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import AsyncHandler from "../Utils/AsyncHandler";
 
 // Get all users:
-export const getUser = async (req: Request, res: Response) => {
+export const GetUser = async (req: Request, res: Response) => {
   try {
     const user = await UserModels.find();
 

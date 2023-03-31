@@ -37,7 +37,7 @@ exports.GetUser = GetUser;
 // Get a single User:
 exports.GetSingleUser = (0, AsyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const singleuser = yield UserModels_1.default.findById(req.params.userID).populate({
-        path: "predicts",
+        path: "predict",
     });
     if (!singleuser) {
         next(new AppError_1.AppError({

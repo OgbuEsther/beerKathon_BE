@@ -25,7 +25,7 @@ export const GetUser = async (req: Request, res: Response) => {
 export const GetSingleUser = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const singleuser = await UserModels.findById(req.params.userID).populate({
-      path: "predicts",
+      path: "predict",
     });
 
     if (!singleuser) {

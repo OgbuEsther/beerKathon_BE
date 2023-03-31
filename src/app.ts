@@ -6,7 +6,7 @@ import morgan from "morgan";
 
 import UserRouter from "./Routes/UserRoute";
 
-// import MatchRouter from "./Routes/MatchRoutes";
+import MatchRouter from "./Routes/MatchRoutes";
 
 // import PredictRouter from "./Routes/PredictRoutes";
 
@@ -21,7 +21,7 @@ export const AppConfig = (app: Application) => {
 
   // Configuring the routes:
   app.use("/api", UserRouter);
-  // app.use("/api", UserRouter);
+  app.use("/api", MatchRouter);
   // app.use("/api", PredictRouter);
 
   app.all("*", (req: Request, res: Response, next: NextFunction) => {
